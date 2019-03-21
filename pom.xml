@@ -109,7 +109,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>uber-${artifactId}-${version}</finalName>
+                    <!-- Replace simple jar with uber jar in order to use this one in maven-docker plugin -->
+                    <!--<finalName>uber-${artifactId}-${version}</finalName>-->
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
@@ -127,6 +128,80 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <!-- The Docker Maven plugin is used to create docker image with the fat jar -->
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.27.2</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>lapusan/test-docker:${version}</name>
+                            <build>
+                                <from>openjdk:8-jre</from>
+                                <ports>
+                                    <port>8081</port>
+                                </ports>
+                                <assembly>
+                                    <!-- used for different approach to define assembly config -->
+                                    <!--<descriptorRef>artifact-with-dependencies</descriptorRef>-->
+                                    <!--<descriptor>assembly.xml</descriptor>-->
+                                    <inline>
+                                        <dependencySets>
+                                            <dependencySet>
+                                                <!--<useProjectArtifact>true</useProjectArtifact>-->
+                                                <includes>
+                                                    <include>reactive-rest:undertow-httpexchange</include>
+                                                </includes>
+                                                <outputDirectory>.</outputDirectory>
+                                                <outputFileNameMapping>${artifactId}-${version}.jar
+                                                </outputFileNameMapping>
+                                            </dependencySet>
+                                        </dependencySets>
+                                    </inline>
+                                </assembly>
+                                <cmd>java -jar /maven/${artifactId}-${version}.jar</cmd>
+                            </build>
+                            <run>
+                                <ports>
+                                    <port>8081:8081</port>
+                                </ports>
+                            </run>
+                        </image>
+                    </images>
+                    <!-- Docker credentials -->
+                    <authConfig>
+                        <push>
+                            <username>lapusan</username>
+                            <password>PASSWORD</password>
+                        </push>
+                    </authConfig>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker:build</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker:start</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker:stop</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -14,7 +14,7 @@ public class Server {
 	public static void main(String[] args)
 			throws ServletException {
 
-		final String  host = getProperty("undertow.host", "localhost");
+		final String  host = getProperty("undertow.host", "0.0.0.0");
 		final Integer port = getProperty("undertow.port", 8081);
 
 		final UndertowServer server = new UndertowServer(host, port, "undertow-httpexchange.war");
