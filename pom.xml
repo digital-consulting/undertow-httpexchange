@@ -184,8 +184,9 @@
                         <id>docker:build</id>
                         <phase>package</phase>
                         <goals>
+                            <goal>stop</goal>
                             <goal>build</goal>
-                            <goal>push</goal>
+                            <!--<goal>push</goal>-->
                         </goals>
                     </execution>
                     <execution>

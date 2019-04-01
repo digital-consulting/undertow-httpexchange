@@ -4,9 +4,9 @@
 
 The default run config is presented in plugin documentation.
 For undertow example I create a custom run config:
-* mvn package -> will run also docker:build and docker:push
-* mvn install -> will run package task (with included docker commands) and docker:start
-* to stop current running container use docker:stop
+1. mvn install -> will run package task** (with included docker commands) and docker:start
+    **mvn package -> will run also docker:stop, docker:build and docker:push
+2. to stop current running container use docker:stop
 
 
 Make sure you have a Docker running on your local machine
